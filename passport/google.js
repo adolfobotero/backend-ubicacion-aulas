@@ -49,7 +49,7 @@ passport.use(new GoogleStrategy({
   } catch (err) {
     console.error('Error en login con Google:', err.message);
     return done(null, false, {
-      message: 'No se pudo conectar con la base de datos. Intente más tarde.'
+      message: 'No se pudo conectar con el servidor. Intente más tarde.'
     });
   }
 }));
@@ -66,40 +66,3 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
-
-  /*
-  if (!email.endsWith('@ucaldas.edu.co')) return done(null, false);
-
-  const result = await pool.query('SELECT * FROM usuarios WHERE mailusuario = $1', [email]);
-  let user = result.rows[0];
-
-  if (!user) {
-    const nuevoUsuario = UsuarioFactory.crearUsuario('google', {
-      codeusuario: profile.id,
-      nombrecompleto: profile.displayName,
-      mailusuario: email
-    });
-
-    const insert = await pool.query(`
-      INSERT INTO usuarios (codeusuario, nombrecompleto, mailusuario, rolusuario, metodologin)
-      VALUES ($1, $2, $3, $4, $5) RETURNING *
-    `, [
-      nuevoUsuario.codeusuario,
-      nuevoUsuario.nombrecompleto,
-      nuevoUsuario.mailusuario,
-      nuevoUsuario.rolusuario,
-      nuevoUsuario.metodologin
-    ]);
-
-    user = insert.rows[0];
-  }
-
-  done(null, user);
-}));
-
-passport.serializeUser((user, done) => done(null, user.idusuario));
-passport.deserializeUser(async (id, done) => {
-  const res = await pool.query('SELECT * FROM usuarios WHERE idusuario = $1', [id]);
-  done(null, res.rows[0]);
-});
-*/

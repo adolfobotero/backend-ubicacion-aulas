@@ -7,7 +7,7 @@ function verificarAdmin(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.rol !== 'admin') {
-      return res.status(403).send('Acceso denegado');
+      return res.status(403).send('Acceso denegado. No tiene permisos.');
     }
     req.user = decoded;
     next();

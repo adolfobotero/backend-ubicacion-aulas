@@ -36,6 +36,6 @@ exports.loginLocal = async (req, res) => {
 
   } catch (err) {
     console.error('Error en loginLocal:', err.message);
-    res.status(500).json({ message: 'Error al conectar con la base de datos. Intente más tarde.' });
+    res.status(500).json({ message: 'Error de conexión. Intente más tarde.' });
   }
 };
