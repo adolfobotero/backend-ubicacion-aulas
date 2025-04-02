@@ -26,4 +26,24 @@ pool.on('error', (err) => {
   }
 })();
 
+// Crear tabla de sedes si no existe
+const crearTablaSedes = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sedes (
+        idSede SERIAL PRIMARY KEY,
+        nombreSede VARCHAR(100) NOT NULL,
+        direccionSede TEXT,
+        latitudSede DECIMAL,
+        longitudSede DECIMAL
+      );
+    `);
+    console.log('Tabla "Sedes" verificada/creada correctamente');
+  } catch (err) {
+    console.error('Error al crear la tabla Sedes:', err.message);
+  }
+};
+
+crearTablaSedes();
+
 module.exports = pool;

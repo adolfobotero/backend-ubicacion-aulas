@@ -13,8 +13,18 @@ Este proyecto es un sistema inteligente que permite a estudiantes y administrati
 ## 📁 Estructura del proyecto
 
 ```
+/frontend
+├── src
+│   ├── assets/              # imágenes
+│   ├── components/          # componentes reutilizables
+│   ├── views/               # vistas/páginas como login, dashboard, chatbot
+│   ├── styles/              # CSS por vista
+│   └── App.js
+```
+
+```
 /backend
-├── routes/                 # rutas de autenticación y administración
+├── routes/                  # rutas de autenticación y administración
 ├── controllers/            # lógica de login
 ├── passport/               # estrategia de login con Google
 ├── middlewares/            # proxy de roles
@@ -25,9 +35,10 @@ Este proyecto es un sistema inteligente que permite a estudiantes y administrati
 
 ## 🚀 Instalación
 
-### 1. Clona el repositorio
+### 1. Clona los repositorios
 
 ```bash
+git clone https://github.com/adolfobotero/sistema-ubicacion-aulas.git
 git clone https://github.com/adolfobotero/backend-ubicacion-aulas.git
 ```
 
@@ -81,7 +92,39 @@ node server.js
 ```
 
 ---
+
+### 3. Frontend
+
+```bash
+cd sistema-ubicacion-aulas
+npm install
+npm start
+```
+
+---
+
+## 🔐 Accesos protegidos
+
+- Solo los usuarios con rol `"admin"` acceden a `/admin/dashboard`
+- Los estudiantes o administradores pueden entrar a `/chatbot`
+- Se usa `PrivateRoute` con JWT y Proxy en backend para proteger rutas
+
+---
+
 ## 👨‍💻 Autor
 
 - **Luis Adolfo Botero** – Universidad de Caldas
 - Contacto: [GitHub](https://github.com/adolfobotero)
+
+---
+
+## 📷 Captura
+
+![Login Screenshot](./public/assets/screenshot-login.jpg)
+
+---
+
+## 📌 Licencia
+
+- Universidad de Caldas
+- Manizales - Colombia
