@@ -24,7 +24,7 @@ Este proyecto es un sistema inteligente que permite a estudiantes y administrati
 
 ```
 /backend
-├── routes/                  # rutas de autenticación y administración
+├── routes/                 # rutas de autenticación y administración
 ├── controllers/            # lógica de login
 ├── passport/               # estrategia de login con Google
 ├── middlewares/            # proxy de roles
@@ -61,25 +61,11 @@ GOOGLE_CLIENT_SECRET=TU_CLIENT_SECRET
 GOOGLE_CALLBACK=http://localhost:3001/auth/google/callback
 ```
 
-Crea la base de datos con nombre `ubicacion_aulas` en PostgreSQL con la tabla `usuarios`.
+Crea la base de datos con nombre `ubicacion_aulas` en PostgreSQL y ejecuta el siguente script SQL para crear el usuario Adminitrador.
 
 ```sql
--- Eliminar la tabla si ya existe
-DROP TABLE IF EXISTS usuarios;
-
--- Crear tabla
-CREATE TABLE usuarios (
-    idUsuario SERIAL PRIMARY KEY,
-    codeUsuario VARCHAR(50) NOT NULL,
-    nombreCompleto VARCHAR(100) NOT NULL,
-    mailUsuario VARCHAR(100) UNIQUE NOT NULL,
-    passUsuario TEXT,
-    rolUsuario VARCHAR(50) NOT NULL DEFAULT 'admin',
-    metodoLogin VARCHAR(50) NOT NULL DEFAULT 'local'
-);
-
--- Insertar usuarios administrativos (login con correo y contraseña)
--- Contraseñas hasheadas con bcrypt (clave original: admin25)
+-- Insertar usuario administrativo (login con correo y contraseña)
+-- Contraseña hasheada con bcrypt (clave original: admin25)
 INSERT INTO usuarios (codeUsuario, nombreCompleto, mailUsuario, passUsuario, rolUsuario, metodoLogin)
 VALUES 
 ('ADM001', 'Administrador', 'admin@ucaldas.edu.co', '$2b$10$YcIPq/KvskKCasmI3u567OV721fZRP/xdXjjJUCfPVHr92y3XokVW', 'admin', 'local');
@@ -115,12 +101,10 @@ npm start
 
 - **Luis Adolfo Botero** – Universidad de Caldas
 - Contacto: [GitHub](https://github.com/adolfobotero)
-
----
-
-## 📷 Captura
-
-![Login Screenshot](./public/assets/screenshot-login.jpg)
+- **Juan Estaban** – Universidad de Caldas
+- **Yulay Andrea Castaño** – Universidad de Caldas
+- **Magreth Quintero** – Universidad de Caldas
+- **Camilo Osorio Latorre** – Universidad de Caldas
 
 ---
 

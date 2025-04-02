@@ -26,6 +26,25 @@ pool.on('error', (err) => {
   }
 })();
 
+// Crear tabla de usuarios si no existe
+const crearTablaUsuarios = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS usuarios (
+          idUsuario SERIAL PRIMARY KEY,
+          codeUsuario VARCHAR(50) NOT NULL,
+          nombreCompleto VARCHAR(100) NOT NULL,
+          mailUsuario VARCHAR(100) UNIQUE NOT NULL,
+          passUsuario TEXT,
+          rolUsuario VARCHAR(50) NOT NULL DEFAULT 'admin',
+          metodoLogin VARCHAR(50) NOT NULL DEFAULT 'local'
+      );
+    `);
+    console.log('Tabla "Usuarios" verificada/creada correctamente');
+  } catch (err) {
+    console.error('Error al crear la tabla Usuarios:', err.message);
+  }
+};
 // Crear tabla de sedes si no existe
 const crearTablaSedes = async () => {
   try {
@@ -44,6 +63,7 @@ const crearTablaSedes = async () => {
   }
 };
 
+crearTablaUsuarios();
 crearTablaSedes();
 
 module.exports = pool;

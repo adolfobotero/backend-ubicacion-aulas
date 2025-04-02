@@ -7,6 +7,7 @@ require('./passport/google');
 const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const usuariosRoutes = require('./routes/usuariosRoutes');
 const sedeRoutes = require('./routes/sedesRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -22,6 +23,7 @@ app.use(passport.session());
 // Rutas principales
 app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/sedes', sedeRoutes);
 
 // Redirección a chatbot
