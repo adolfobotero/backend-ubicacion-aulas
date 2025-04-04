@@ -63,7 +63,24 @@ const crearTablaSedes = async () => {
   }
 };
 
+const crearTablaProfesores = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS profesores (
+        idProfesor SERIAL PRIMARY KEY,
+        codeProfesor VARCHAR(50) UNIQUE NOT NULL,
+        nombreProfesor VARCHAR(100) NOT NULL,
+        mailProfesor VARCHAR(100) NOT NULL
+      );
+    `);
+    console.log('Tabla "Profesores" verificada/creada correctamente.');
+  } catch (error) {
+    console.error('Error al crear la tabla Profesores:', error.message);
+  }
+};
+
 crearTablaUsuarios();
 crearTablaSedes();
+crearTablaProfesores();
 
 module.exports = pool;

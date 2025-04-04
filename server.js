@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const sedeRoutes = require('./routes/sedesRoutes');
+const profesoresRoutes = require('./routes/profesoresRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/sedes', sedeRoutes);
+app.use('/api/profesores', profesoresRoutes);
 
 // Redirección a chatbot
 app.get('/chatbot', (req, res) => {
