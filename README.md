@@ -61,7 +61,14 @@ GOOGLE_CLIENT_SECRET=TU_CLIENT_SECRET
 GOOGLE_CALLBACK=http://localhost:3001/auth/google/callback
 ```
 
-Crea la base de datos con nombre `ubicacion_aulas` en PostgreSQL y ejecuta el siguente script SQL para crear el usuario Adminitrador.
+En pgAdmin, crea la base de datos con nombre `ubicacion_aulas` en PostgreSQL y conéctate a la base de datos para ejecutar esta instrucción SQL:
+
+```sql
+-- Habilitar la extensión uuid-ossp en PostgreSQL
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
+
+Ejecuta el siguente script SQL para crear el usuario Adminitrador.
 
 ```sql
 -- Insertar usuario administrativo (login con correo y contraseña)
