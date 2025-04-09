@@ -1,7 +1,9 @@
+// Este middleware verifica si el usuario tiene el rol de 'admin' para acceder a ciertas rutas
+// Importamos el paquete jsonwebtoken para verificar el token
 const jwt = require('jsonwebtoken');
 
 function verificarAdmin(req, res, next) {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(403).send('Token requerido');
 
   try {

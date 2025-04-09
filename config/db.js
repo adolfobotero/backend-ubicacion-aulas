@@ -134,8 +134,10 @@ const crearTablaAulas = async () => {
       CREATE TABLE IF NOT EXISTS aulas (
         idAula UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         codeAula VARCHAR(50) UNIQUE NOT NULL,
-        nombreAula VARCHAR(80) NOT NULL,
+        nombreAula VARCHAR(100) NOT NULL,
         capAula INTEGER,
+        edificioAula VARCHAR(100),
+        pisoAula VARCHAR(20),
         idSedeActual UUID NOT NULL,
         FOREIGN KEY (idSedeActual) REFERENCES sedes(idSede) ON DELETE CASCADE
       );
@@ -145,6 +147,7 @@ const crearTablaAulas = async () => {
     console.error('Error al crear la tabla Aulas:', err.message);
   }
 };
+
 
 const crearTablaAsignaturaAula = async () => {
   try {
@@ -166,6 +169,34 @@ const crearTablaAsignaturaAula = async () => {
   }
 };
 
+// Crear tabla HistorialUbicacion con UUID
+const crearTablaHistorialUbicacion = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS historial_ubicacion (
+        idHistorial SERIAL PRIMARY KEY,
+        idAula UUID NOT NULL,
+        codeAula VARCHAR(50),
+        sedeAnterior UUID,
+        sedeNueva UUID,
+        nombreSedeAnterior VARCHAR(100),
+        nombreSedeNueva VARCHAR(100),
+        edificioAnterior VARCHAR(100),
+        edificioNuevo VARCHAR(100),
+        pisoAnterior VARCHAR(20),
+        pisoNuevo VARCHAR(20),
+        fechaCambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        usuarioCambio VARCHAR(100),
+        observacion TEXT,
+        FOREIGN KEY (idAula) REFERENCES aulas(idAula) ON DELETE CASCADE
+      );
+    `);
+    console.log('Tabla "HistorialUbicacion" verificada/creada correctamente.');
+  } catch (err) {
+    console.error('Error al crear la tabla HistorialUbicacion:', err.message);
+  }
+};
+
 // Ejecutar creación de tablas
 (async () => {
   await crearExtensionUUID();
@@ -176,6 +207,7 @@ const crearTablaAsignaturaAula = async () => {
   await crearTablaAsignaturas();
   await crearTablaProfesorAsignatura();
   await crearTablaAsignaturaAula();
+  await crearTablaHistorialUbicacion();
   console.log('Todas las tablas han sido verificadas/creadas correctamente.');
 })();
 

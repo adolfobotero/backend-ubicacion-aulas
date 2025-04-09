@@ -28,7 +28,7 @@ exports.loginLocal = async (req, res) => {
 
     const usuario = UsuarioFactory.crearUsuario('local', user);
     const token = jwt.sign(
-      { idusuario: user.idusuario, rol: user.rolusuario },
+      { idusuario: user.idusuario, nombreUsuario: user.nombrecompleto, rol: user.rolusuario, mailUsuario: user.mailusuario },
       process.env.JWT_SECRET
     );
 

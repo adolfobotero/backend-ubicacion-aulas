@@ -19,16 +19,16 @@ exports.getAulas = async (req, res) => {
 
 // Crear una nueva aula
 exports.createAula = async (req, res) => {
-  const { codeAula, nombreAula, capAula, idSedeActual } = req.body;
-  if (!codeAula || !nombreAula || !capAula || !idSedeActual) {
+  const { codeAula, nombreAula, capAula, edificioAula, pisoAula, idSedeActual } = req.body;
+  if (!codeAula || !nombreAula || !capAula || !edificioAula || !pisoAula || !idSedeActual) {
     return res.status(400).json({ message: 'Todos los campos son obligatorios' });
   }
 
   try {
     const result = await pool.query(
-      `INSERT INTO aulas (codeAula, nombreAula, capAula, idSedeActual)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [codeAula, nombreAula, capAula, idSedeActual]
+      `INSERT INTO aulas (codeAula, nombreAula, capAula, edificioAula, pisoAula, idSedeActual)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [codeAula, nombreAula, capAula, edificioAula, pisoAula, idSedeActual]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -40,14 +40,77 @@ exports.createAula = async (req, res) => {
 // Actualizar aula
 exports.updateAula = async (req, res) => {
   const idAula = req.params.id;
-  const { codeAula, nombreAula, capAula, idSedeActual } = req.body;
+  const {
+    codeAula,
+    nombreAula,
+    capAula,
+    edificioAula,
+    pisoAula,
+    idSedeActual
+  } = req.body;
+
+  const usuarioCambio = req.user?.mailUsuario || 'desconocido';
+  const observacion = 'Actualización de datos del aula';
 
   try {
-    const result = await pool.query(
-      `UPDATE aulas SET codeAula = $1, nombreAula = $2, capAula = $3, idSedeActual = $4
-       WHERE idAula = $5 RETURNING *`,
-      [codeAula, nombreAula, capAula, idSedeActual, idAula]
-    );
+    // Obtener datos actuales del aula y su sede
+    const actual = await pool.query(`
+      SELECT a.*, s.nombreSede
+      FROM aulas a
+      JOIN sedes s ON a.idSedeActual = s.idSede
+      WHERE a.idAula = $1
+    `, [idAula]);
+
+    if (actual.rows.length === 0) {
+      return res.status(404).json({ message: 'Aula no encontrada' });
+    }
+
+    const aulaActual = actual.rows[0];
+
+    // Obtener nombre de la nueva sede
+    const sedeNuevaRes = await pool.query(`SELECT * FROM sedes WHERE idSede = $1`, [idSedeActual]);
+    const sedeNueva = sedeNuevaRes.rows[0];
+    //console.log('Usuario autenticado:', req.user);
+
+    // Guardar en historial antes de actualizar
+    await pool.query(`
+      INSERT INTO historial_ubicacion (
+        idAula, codeAula,
+        sedeAnterior, sedeNueva,
+        nombreSedeAnterior, nombreSedeNueva,
+        edificioAnterior, edificioNuevo,
+        pisoAnterior, pisoNuevo,
+        usuarioCambio, observacion
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `, [
+      idAula,
+      aulaActual.codeaula,
+      aulaActual.idsedeactual,
+      idSedeActual,
+      aulaActual.nombresede,
+      sedeNueva?.nombresede || '',
+      aulaActual.edificioaula,
+      edificioAula,
+      aulaActual.pisoaula,
+      pisoAula,
+      usuarioCambio,
+      observacion
+    ]);
+
+    // Actualizar aula
+    const result = await pool.query(`
+      UPDATE aulas
+      SET codeAula = $1,
+          nombreAula = $2,
+          capAula = $3,
+          edificioAula = $4,
+          pisoAula = $5,
+          idSedeActual = $6
+      WHERE idAula = $7
+      RETURNING *
+    `, [codeAula, nombreAula, capAula, edificioAula, pisoAula, idSedeActual, idAula]);
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Error al actualizar aula:', err.message);
@@ -149,3 +212,33 @@ exports.quitarAsignatura = async (req, res) => {
     res.status(500).json({ error: 'Error al quitar asignatura del aula' });
   }
 };
+
+// Obtener el historial de ubicaciones de un aula
+// Se agrega paginación y se ordena por fecha de cambio (fechaCambio) de manera descendente
+exports.getHistorialUbicacion = async (req, res) => {
+  const idAula = req.params.id;
+  const { pagina = 1, limite = 10 } = req.query;
+  const offset = (pagina - 1) * limite;
+
+  try {
+    const result = await pool.query(`
+      SELECT * FROM historial_ubicacion
+      WHERE idAula = $1
+      ORDER BY fechaCambio DESC
+      LIMIT $2 OFFSET $3
+    `, [idAula, limite, offset]);
+
+    const totalRes = await pool.query(
+      `SELECT COUNT(*) FROM historial_ubicacion WHERE idAula = $1`,
+      [idAula]
+    );
+
+    const total = parseInt(totalRes.rows[0].count, 10);
+
+    res.json({ registros: result.rows, total });
+  } catch (err) {
+    console.error('Error al obtener historial:', err.message);
+    res.status(500).json({ message: 'Error al obtener historial de ubicación' });
+  }
+};
+
