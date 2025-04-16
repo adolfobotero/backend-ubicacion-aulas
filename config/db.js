@@ -62,6 +62,7 @@ const crearTablaSedes = async () => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sedes (
         idSede UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        codeSede VARCHAR(50) UNIQUE,
         nombreSede VARCHAR(100) NOT NULL,
         direccionSede TEXT,
         latitudSede DECIMAL,
@@ -115,10 +116,9 @@ const crearTablaProfesorAsignatura = async () => {
         idProfesorAsignatura UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         idProfesor UUID NOT NULL,
         idAsignatura UUID NOT NULL,
-        horarioAsignatura VARCHAR(150) NOT NULL,
         FOREIGN KEY (idProfesor) REFERENCES profesores (idProfesor) ON DELETE CASCADE,
         FOREIGN KEY (idAsignatura) REFERENCES asignaturas (idAsignatura) ON DELETE CASCADE,
-        UNIQUE (idProfesor, idAsignatura, horarioAsignatura)
+        UNIQUE (idProfesor, idAsignatura)
       );
     `);
     console.log('Tabla "ProfesorAsignatura" verificada/creada correctamente.');
@@ -148,7 +148,6 @@ const crearTablaAulas = async () => {
   }
 };
 
-
 const crearTablaAsignaturaAula = async () => {
   try {
     await pool.query(`
@@ -156,11 +155,14 @@ const crearTablaAsignaturaAula = async () => {
         idAsignaturaAula UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         idAsignatura UUID NOT NULL,
         idAula UUID NOT NULL,
+        idProfesor UUID NOT NULL,
         diaSemana VARCHAR(15) NOT NULL,
         horaInicio TIME NOT NULL,
         horaFin TIME NOT NULL,
         FOREIGN KEY (idAsignatura) REFERENCES asignaturas(idAsignatura) ON DELETE CASCADE,
-        FOREIGN KEY (idAula) REFERENCES aulas(idAula) ON DELETE CASCADE
+        FOREIGN KEY (idAula) REFERENCES aulas(idAula) ON DELETE CASCADE,
+        FOREIGN KEY (idProfesor) REFERENCES profesores(idProfesor) ON DELETE CASCADE,
+        UNIQUE (idAsignatura, idAula, diaSemana, horaInicio, horaFin)
       );
     `);
     console.log('Tabla "AsignaturaAula" verificada/creada correctamente.');
@@ -169,31 +171,36 @@ const crearTablaAsignaturaAula = async () => {
   }
 };
 
-// Crear tabla HistorialUbicacion con UUID
-const crearTablaHistorialUbicacion = async () => {
+// Crear tabla HistorialAsignaturaAula con UUID
+// Esta tabla registra los cambios de aula para una asignatura, incluyendo el aula anterior y la nueva, así como el usuario que realizó el cambio y la fecha del cambio.
+// Se utiliza UUID para las claves primarias y foráneas, y se registran los horarios anteriores y nuevos.
+const crearTablaHistorialAsignaturaAula = async () => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS historial_ubicacion (
-        idHistorial SERIAL PRIMARY KEY,
-        idAula UUID NOT NULL,
-        codeAula VARCHAR(50),
-        sedeAnterior UUID,
-        sedeNueva UUID,
-        nombreSedeAnterior VARCHAR(100),
-        nombreSedeNueva VARCHAR(100),
-        edificioAnterior VARCHAR(100),
-        edificioNuevo VARCHAR(100),
-        pisoAnterior VARCHAR(20),
-        pisoNuevo VARCHAR(20),
+      CREATE TABLE IF NOT EXISTS historial_asignatura_aula (
+        idHistorial UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        idAsignatura UUID NOT NULL,
+        idAulaAnterior UUID,
+        idAulaNueva UUID,
+        diaSemanaAnterior VARCHAR(15),
+        horaInicioAnterior TIME,
+        horaFinAnterior TIME,
+        diaSemanaNuevo VARCHAR(15),
+        horaInicioNuevo TIME,
+        horaFinNuevo TIME,
+        idUsuarioCambio UUID NOT NULL,
         fechaCambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        usuarioCambio VARCHAR(100),
-        observacion TEXT,
-        FOREIGN KEY (idAula) REFERENCES aulas(idAula) ON DELETE CASCADE
+        motivo TEXT,
+
+        FOREIGN KEY (idAsignatura) REFERENCES asignaturas(idAsignatura) ON DELETE CASCADE,
+        FOREIGN KEY (idAulaAnterior) REFERENCES aulas(idAula) ON DELETE SET NULL,
+        FOREIGN KEY (idAulaNueva) REFERENCES aulas(idAula) ON DELETE CASCADE,
+        FOREIGN KEY (idUsuarioCambio) REFERENCES usuarios(idUsuario) ON DELETE CASCADE
       );
     `);
-    console.log('Tabla "HistorialUbicacion" verificada/creada correctamente.');
+    console.log('Tabla "historial_asignatura_aula" verificada/creada correctamente.');
   } catch (err) {
-    console.error('Error al crear la tabla HistorialUbicacion:', err.message);
+    console.error('Error al crear la tabla historial_asignatura_aula:', err.message);
   }
 };
 
@@ -207,7 +214,7 @@ const crearTablaHistorialUbicacion = async () => {
   await crearTablaAsignaturas();
   await crearTablaProfesorAsignatura();
   await crearTablaAsignaturaAula();
-  await crearTablaHistorialUbicacion();
+  await crearTablaHistorialAsignaturaAula();
   console.log('Todas las tablas han sido verificadas/creadas correctamente.');
 })();
 

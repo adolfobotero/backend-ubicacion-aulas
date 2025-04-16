@@ -2,9 +2,24 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 exports.getUsuarios = async (req, res) => {
+  const { pagina = 1, limite = 5, busqueda = '' } = req.query;
+  const offset = (pagina - 1) * limite;
+
   try {
-    const result = await pool.query('SELECT * FROM usuarios');
-    res.json(result.rows);
+    const result = await pool.query(`
+      SELECT * FROM usuarios
+      WHERE LOWER(nombreCompleto) LIKE LOWER($1) OR LOWER(mailUsuario) LIKE LOWER($1)
+      ORDER BY idUsuario
+      LIMIT $2 OFFSET $3
+    `, [`%${busqueda}%`, limite, offset]);
+
+    const totalRes = await pool.query(`
+      SELECT COUNT(*) FROM usuarios
+      WHERE LOWER(nombreCompleto) LIKE LOWER($1) OR LOWER(mailUsuario) LIKE LOWER($1)
+    `, [`%${busqueda}%`]);
+
+    const total = parseInt(totalRes.rows[0].count, 10);
+    res.json({ registros: result.rows, total });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: 'Error al obtener los usuarios' });
