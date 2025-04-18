@@ -15,8 +15,20 @@ const aulasRoutes = require('./routes/aulasRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
+const allowedOrigins = [process.env.FRONTEND_URL];
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permitir solicitudes sin origin (como Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use(session({ secret: 'clave_super_secreta', resave: false, saveUninitialized: false }));

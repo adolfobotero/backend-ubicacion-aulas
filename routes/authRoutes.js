@@ -3,8 +3,6 @@ const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { loginLocal } = require('../controllers/authController');
-//const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sistema-ubicacion-aulas.onrender.com/';
 
 // Login local
 router.post('/login', loginLocal);
