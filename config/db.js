@@ -1,13 +1,27 @@
+require('dotenv').config();
 const { Pool } = require('pg');
 
-// Configuración desde variables de entorno
-const pool = new Pool({
-  user: process.env.PG_USER || 'postgres',
-  host: process.env.PG_HOST || 'localhost',
-  database: process.env.PG_DATABASE || 'ubicacion_aulas',
-  password: process.env.PG_PASSWORD || 'masterkey',
-  port: process.env.PG_PORT || 5432
-});
+// Conexión desde variables de entorno
+/*const pool = new Pool({
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT
+});*/
+
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : true,
+    })
+  : new Pool({
+      user: process.env.PG_USER,
+      host: process.env.PG_HOST,
+      database: process.env.PG_DATABASE,
+      password: process.env.PG_PASSWORD,
+      port: process.env.PG_PORT,
+    });
 
 // Captura errores del pool globalmente
 pool.on('error', (err) => {
@@ -51,8 +65,31 @@ const crearTablaUsuarios = async () => {
       );
     `);
     console.log('Tabla "Usuarios" verificada/creada correctamente');
+
+    // Verificar si ya existe el usuario admin
+    const result = await pool.query(
+      `SELECT * FROM usuarios WHERE mailUsuario = 'admin@ucaldas.edu.co'`
+    );
+
+    if (result.rowCount === 0) {
+      await pool.query(`
+        INSERT INTO usuarios (codeUsuario, nombreCompleto, mailUsuario, passUsuario, rolUsuario, metodoLogin)
+        VALUES (
+          'ADM001',
+          'Administrador',
+          'admin@ucaldas.edu.co',
+          '$2b$10$YcIPq/KvskKCasmI3u567OV721fZRP/xdXjjJUCfPVHr92y3XokVW', -- contraseña: admin123
+          'admin',
+          'local'
+        );
+      `);
+      console.log('Usuario administrador creado por defecto');
+    } else {
+      console.log('Usuario administrador ya existe');
+    }
+
   } catch (err) {
-    console.error('Error al crear la tabla Usuarios:', err.message);
+    console.error('Error al crear la tabla Usuarios o insertar admin:', err.message);
   }
 };
 
