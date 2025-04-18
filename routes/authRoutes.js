@@ -3,6 +3,8 @@ const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { loginLocal } = require('../controllers/authController');
+//const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sistema-ubicacion-aulas.onrender.com/';
 
 // Login local
 router.post('/login', loginLocal);
@@ -18,7 +20,7 @@ router.get('/auth/google/callback',
   (req, res) => {
     // Verifica si se autenticó correctamente
     if (!req.user) {
-      return res.redirect('http://localhost:3000/');
+      return res.redirect(`${FRONTEND_URL}/`);
     }
 
     // Generar token JWT (igual que loginLocal)
@@ -30,13 +32,13 @@ router.get('/auth/google/callback',
     console.log('Autenticación con Google exitosa. Redirigiendo con token...');
 
     // Redirige al frontend con el token en la URL
-    res.redirect(`http://localhost:3000/chatbot?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/chatbot?token=${token}`);
   }
 );
 
 // Ruta para manejar errores de autenticación de Google
 router.get('/auth/google/failure', (req, res) => {
-  res.redirect('http://localhost:3000/?error=google');
+  res.redirect(`${FRONTEND_URL}/?error=google`);
 });
 
 module.exports = router;
