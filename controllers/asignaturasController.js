@@ -37,6 +37,30 @@ exports.getAsignaturas = async (req, res) => {
   }
 };
 
+// Obtener el detalle de la asignatura como el aula y horario
+exports.getDetalleAsignatura = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT a.nombreasignatura, a.codeasignatura,
+             au.codeaula, au.nombreaula,
+             aa.diasemana, aa.horainicio, aa.horafin,
+             p.nombreprofesor, p.mailprofesor
+      FROM asignaturas a
+      LEFT JOIN asignatura_aula aa ON a.idasignatura = aa.idasignatura
+      LEFT JOIN aulas au ON aa.idaula = au.idaula
+      LEFT JOIN profesores p ON aa.idprofesor = p.idprofesor
+      WHERE a.idasignatura = $1
+    `, [id]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al obtener detalle de asignatura:', err.message);
+    res.status(500).json({ message: 'Error al obtener detalle' });
+  }
+};
+
 // Crear una nueva asignatura
 exports.createAsignatura = async (req, res) => {
   const { codeAsignatura, nombreAsignatura } = req.body;

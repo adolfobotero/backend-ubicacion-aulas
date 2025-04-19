@@ -15,6 +15,7 @@ router.delete('/:idAsignatura/profesores/:idProfesor', asignaturaController.quit
 
 // Rutas para historial de aulas por asignatura
 router.get('/:id/historial', asignaturaController.getHistorialAsignatura);
+router.get('/:id/detalle', asignaturaController.getDetalleAsignatura);
 
 // Rutas para importar / exportar asignaturas desde excel
 router.post('/importar', asignaturaController.importarAsignaturas);

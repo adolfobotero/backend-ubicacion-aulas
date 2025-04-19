@@ -18,7 +18,7 @@ router.get('/auth/google/callback',
   (req, res) => {
     // Verifica si se autenticó correctamente
     if (!req.user) {
-      return res.redirect(`${FRONTEND_URL}/`);
+      return res.redirect(`${process.env.FRONTEND_URL}/`);
     }
 
     // Generar token JWT (igual que loginLocal)
@@ -28,15 +28,16 @@ router.get('/auth/google/callback',
     );
 
     console.log('Autenticación con Google exitosa. Redirigiendo con token...');
+    console.log('Ruta actual:', process.env.FRONTEND_URL)
 
     // Redirige al frontend con el token en la URL
-    res.redirect(`${FRONTEND_URL}/chatbot?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/chatbot?token=${token}`);
   }
 );
 
 // Ruta para manejar errores de autenticación de Google
 router.get('/auth/google/failure', (req, res) => {
-  res.redirect(`${FRONTEND_URL}/?error=google`);
+  res.redirect(`${process.env.FRONTEND_URL}/?error=google`);
 });
 
 module.exports = router;
