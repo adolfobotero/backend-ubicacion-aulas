@@ -1,121 +1,162 @@
-# 🏫 Sistema de Ubicación de Aulas – U. de Caldas
+# 🏫 Sistema de Ubicación de Aulas – Universidad de Caldas
 
-Este proyecto es un sistema inteligente que permite a estudiantes y administrativos encontrar la ubicación de aulas en la Universidad de Caldas mediante un panel de administración y un chatbot asistido con IA.
+Este proyecto es un sistema inteligente que permite a estudiantes y administrativos ubicar aulas y gestionar asignaciones académicas mediante un panel de administración y un chatbot asistido con IA.
 
-## 🔧 Tecnologías utilizadas
+---
 
-- **Frontend:** React, CSS
-- **Backend:** Node.js, Express
+## 🧠 Funcionalidades destacadas
+
+- Panel administrativo con gestión de sedes, aulas, asignaturas, profesores y usuarios.
+- Asignación de profesores y aulas a asignaturas con validación de traslapes.
+- Historial de cambios en la ubicación de asignaturas.
+- Sistema de notificaciones por correo (patrón Observer).
+- Importación/exportación de aulas y asignaciones vía Excel.
+- Chatbot de ayuda integrado con acceso restringido por autenticación.
+- Estadísticas del sistema al inicio del dashboard.
+- Arquitectura en capas con principios SOLID.
+
+---
+
+## 🧱 Tecnologías utilizadas
+
+- **Frontend:** React, Tailwind CSS, Axios
+- **Backend:** Node.js, Express, PostgreSQL
 - **Base de datos:** PostgreSQL
-- **Autenticación:** Login con Google (OAuth2) y usuario/contraseña
-- **Patrones aplicados:** Factory Method, Proxy
+- **Autenticación:** OAuth2 (Google), login local con JWT
+- **Patrones de diseño:** Factory Method, Proxy, Observer, Strategy
+- **Otros:** Dotenv, Nodemailer, bcrypt, multer
 
-## 📁 Estructura del proyecto
+---
+
+## 🗂️ Estructura del proyecto
 
 ```
 /frontend
 ├── src
-│   ├── assets/              # imágenes
-│   ├── components/          # componentes reutilizables
-│   ├── views/               # vistas/páginas como login, dashboard, chatbot
-│   ├── styles/              # CSS por vista
+│   ├── components/      # Botones, tablas, formularios reutilizables
+│   ├── views/           # Vistas por módulo (Dashboard, Aulas, etc.)
+│   ├── styles/          # Estilos por sección
 │   └── App.js
 ```
 
 ```
 /backend
-├── routes/                 # rutas de autenticación y administración
-├── controllers/            # lógica de login
-├── passport/               # estrategia de login con Google
-├── middlewares/            # proxy de roles
-├── models/                 # Factory Method para usuarios
-├── config/db.js            # conexión con PostgreSQL
-└── server.js
+├── controllers/         # Lógica de negocio organizada por módulo (coordinan servicios)
+├── services/            # Reglas de negocio y orquestación entre repositorios y controladores
+├── repositories/        # Acceso a datos: consultas SQL directas o mediante pool
+├── domain/              # Modelos de dominio (clases como Usuario, Aula, etc.)
+├── routes/              # Endpoints HTTP organizados por recurso (usuarios, aulas, etc.)
+├── observers/           # Implementación del patrón Observer (ej. notificaciones por correo)
+├── factories/           # Patrón Factory para creación de instancias (usuarios, login, etc.)
+├── middlewares/         # Autenticación, validación de roles y otros middleware de Express
+├── passport/            # Estrategias de autenticación (OAuth con Google, configuración de Passport)
+├── config/db.js         # Configuración de conexión a PostgreSQL
+├── database/            # Scripts de creación de tablas y relaciones, inserción de datos iniciales
+└── server.js            # Punto de entrada de la aplicación Express
 ```
+
+---
 
 ## 🚀 Instalación
 
-### 1. Clona los repositorios
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/adolfobotero/sistema-ubicacion-aulas.git
 git clone https://github.com/adolfobotero/backend-ubicacion-aulas.git
 ```
 
----
-
-### 2. Backend
+### 2. Configurar el backend
 
 ```bash
 cd backend-ubicacion-aulas
 npm install
 ```
 
-Crea un archivo `.env`:
+Crear el archivo `.env` en el backend con la siguiente estructura:
 
-```
+```env
+# Configuración de conexión a PostgreSQL
+PG_USER=postgres
+PG_HOST=localhost
+PG_DATABASE=ubicacion_aulas
+PG_PASSWORD=TU_CONTRASEÑA_DE_POSTGRES         # ← Reemplaza con tu contraseña local de PostgreSQL
+PG_PORT=5432
+
+# URL del frontend para permitir solicitudes (CORS)
+FRONTEND_URL=http://localhost:3000
+
+# Configuración del servidor y autenticación JWT
 PORT=3001
 JWT_SECRET=clave_super_secreta
-GOOGLE_CLIENT_ID=TU_CLIENT_ID
-GOOGLE_CLIENT_SECRET=TU_CLIENT_SECRET
+
+# Credenciales de Google OAuth para inicio de sesión
+GOOGLE_CLIENT_ID=TU_CLIENT_ID_GOOGLE          # ← Reemplaza con tu Client ID de Google
+GOOGLE_CLIENT_SECRET=TU_CLIENT_SECRET_GOOGLE  # ← Reemplaza con tu Client Secret de Google
 GOOGLE_CALLBACK=http://localhost:3001/auth/google/callback
+
+# Configuración para envío de correos (notificaciones)
+MAIL_USER=TU_CORREO@ucaldas.edu.co            # ← Reemplaza con el correo institucional desde el cual se enviarán notificaciones
+MAIL_PASS=TU_CONTRASEÑA_DE_APLICACIÓN         # ← Reemplaza con la contraseña de aplicación generada en Gmail
 ```
 
-En pgAdmin, crea la base de datos con nombre `ubicacion_aulas` en PostgreSQL y conéctate a la base de datos para ejecutar esta instrucción SQL:
+### 3. Creación de la base de datos
 
-```sql
--- Habilitar la extensión uuid-ossp en PostgreSQL
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+Primero, asegúrate de tener PostgreSQL y PGAdmin instalados en tu equipo.
 ```
-
-Ejecuta el siguente script SQL para crear el usuario Adminitrador.
-
-```sql
--- Insertar usuario administrativo (login con correo y contraseña)
--- Contraseña hasheada con bcrypt (clave original: admin25)
-INSERT INTO usuarios (codeUsuario, nombreCompleto, mailUsuario, passUsuario, rolUsuario, metodoLogin)
-VALUES 
-('ADM001', 'Administrador', 'admin@ucaldas.edu.co', '$2b$10$YcIPq/KvskKCasmI3u567OV721fZRP/xdXjjJUCfPVHr92y3XokVW', 'admin', 'local');
+1. Abre **PGAdmin**.
+2. En el panel izquierdo, haz clic derecho sobre `Databases` y selecciona **Create > Database**.
+3. En el campo **Database name**, escribe: `ubicacion_aulas`.
+4. Haz clic en **Save** para crear la base de datos.
 ```
-
-Luego ejecuta:
+Levantar el servidor:
 
 ```bash
 node server.js
 ```
 
----
-
-### 3. Frontend
+### 4. Configurar el frontend
 
 ```bash
 cd sistema-ubicacion-aulas
 npm install
+```
+
+Crear el archivo `.env` en el frontend con la siguiente estructura:
+
+```env
+# Rutas localhost BACKEND
+REACT_APP_API_URL=http://localhost:3001
+```
+
+Iniciar el servidor de desarrollo:
+
+```bash
 npm start
 ```
 
 ---
 
-## 🔐 Accesos protegidos
+## 🔒 Seguridad y acceso
 
-- Solo los usuarios con rol `"admin"` acceden a `/admin/dashboard`
-- Los estudiantes o administradores pueden entrar a `/chatbot`
-- Se usa `PrivateRoute` con JWT y Proxy en backend para proteger rutas
+- `/admin/dashboard`: solo accesible para administradores.
+- `/chatbot`: accesible para usuarios autenticados con dominio `@ucaldas.edu.co`.
+- Rutas protegidas con JWT y validación de roles mediante middlewares en el backend.
+
+> El backend utiliza JWT para validar la sesión de los usuarios y un middleware tipo Proxy para restringir rutas según el rol del usuario.
 
 ---
 
-## 👨‍💻 Autor
+## 👤 Autores
 
-- **Luis Adolfo Botero** – Universidad de Caldas
-- Contacto: [GitHub](https://github.com/adolfobotero)
-- **Juan Estaban** – Universidad de Caldas
+- **Luis Adolfo Botero** – Universidad de Caldas – [GitHub](https://github.com/adolfobotero)
+- **Juan Esteban** – Universidad de Caldas
 - **Yulay Andrea Castaño** – Universidad de Caldas
 - **Magreth Quintero** – Universidad de Caldas
 - **Camilo Osorio Latorre** – Universidad de Caldas
 
 ---
 
-## 📌 Licencia
+## 📜 Licencia
 
-- Universidad de Caldas
-- Manizales - Colombia
+Proyecto académico – Universidad de Caldas – Manizales, Colombia.

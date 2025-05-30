@@ -1,18 +1,22 @@
+const iniciarBaseDeDatos = require('./database/Init');
+const insertarUsuarioAdmin = require('./database/Seeds');
+
 const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
 require('dotenv').config();
-require('./passport/google');
+require('./passport/Google');
 
 const session = require('express-session');
-const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const usuariosRoutes = require('./routes/usuariosRoutes');
-const sedeRoutes = require('./routes/sedesRoutes');
-const profesoresRoutes = require('./routes/profesoresRoutes');
-const asignaturasRoutes = require('./routes/asignaturasRoutes');
-const aulasRoutes = require('./routes/aulasRoutes');
-const errorHandler = require('./middlewares/errorHandler');
+const authRoutes = require('./routes/AuthRoutes');
+const adminRoutes = require('./routes/AdminRoutes');
+const usuariosRoutes = require('./routes/UsuariosRoutes');
+const sedeRoutes = require('./routes/SedesRoutes');
+const profesoresRoutes = require('./routes/ProfesoresRoutes');
+const asignaturasRoutes = require('./routes/AsignaturasRoutes');
+const aulasRoutes = require('./routes/AulasRoutes');
+const errorHandler = require('./middlewares/ErrorHandler');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 
 const app = express();
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -43,6 +47,7 @@ app.use('/api/sedes', sedeRoutes);
 app.use('/api/profesores', profesoresRoutes);
 app.use('/api/asignaturas', asignaturasRoutes);
 app.use('/api/aulas', aulasRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Redirección a chatbot
 app.get('/chatbot', (req, res) => {
@@ -55,3 +60,9 @@ app.use(errorHandler);
 app.listen(process.env.PORT, () => {
   console.log(`Servidor iniciado en puerto ${process.env.PORT}`);
 });
+
+
+(async () => {
+  await iniciarBaseDeDatos();
+  await insertarUsuarioAdmin();
+})();

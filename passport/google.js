@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const pool = require('../config/db');
-const UsuarioFactory = require('../models/userFactory');
+const pool = require('../config/Db');
+const UsuarioFactory = require('../factories/UsuarioFactory');
 require('dotenv').config();
 
 passport.use(new GoogleStrategy({
@@ -11,7 +11,7 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
 
-  console.log('Perfil recibido de Google:', profile);
+  //console.log('Perfil recibido de Google:', profile);
   
   // Validar dominio institucional
   if (!email.endsWith('@ucaldas.edu.co')) {
@@ -31,14 +31,15 @@ passport.use(new GoogleStrategy({
       });
 
       const insert = await pool.query(`
-        INSERT INTO usuarios (codeusuario, nombrecompleto, mailusuario, rolusuario, metodologin)
-        VALUES ($1, $2, $3, $4, $5) RETURNING *
+        INSERT INTO usuarios (codeusuario, nombrecompleto, mailusuario, rolusuario, metodologin, recibirnotificaciones)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
       `, [
-        nuevoUsuario.codeusuario,
-        nuevoUsuario.nombrecompleto,
-        nuevoUsuario.mailusuario,
-        nuevoUsuario.rolusuario,
-        nuevoUsuario.metodologin
+        nuevoUsuario.codeUsuario,
+        nuevoUsuario.nombreCompleto,
+        nuevoUsuario.mailUsuario,
+        nuevoUsuario.rolUsuario,
+        nuevoUsuario.metodoLogin,
+        false
       ]);
 
       user = insert.rows[0];

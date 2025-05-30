@@ -22,13 +22,16 @@ router.get('/auth/google/callback',
     }
 
     // Generar token JWT (igual que loginLocal)
-    const token = jwt.sign(
-      { idusuario: req.user.idusuario, rol: req.user.rolusuario },
-      process.env.JWT_SECRET
-    );
+    const token = jwt.sign({
+      idusuario: req.user.idusuario,
+      nombreUsuario: req.user.nombrecompleto,
+      mailUsuario: req.user.mailusuario,
+      rol: req.user.rolusuario,
+      recibir_notificaciones: req.user.recibir_notificaciones ?? false
+    }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
-    console.log('Autenticación con Google exitosa. Redirigiendo con token...');
-    console.log('Ruta actual:', process.env.FRONTEND_URL)
+    //console.log('Token con Google:', jwt.decode(token));
+    //console.log('Ruta actual:', process.env.FRONTEND_URL)
 
     // Redirige al frontend con el token en la URL
     res.redirect(`${process.env.FRONTEND_URL}/chatbot?token=${token}`);

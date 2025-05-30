@@ -13,6 +13,7 @@ router.delete('/:id', aulasController.deleteAula);
 // Relación Asignatura-Aula
 router.get('/:id/asignaturas', aulasController.getAsignaturasPorAula);
 router.post('/:id/asignaturas', verificarAdmin, aulasController.asignarAsignatura);
+router.delete('/:id/asignaturas', verificarAdmin, aulasController.quitarAsignacion);
 router.get('/asignadas', verificarAdmin, aulasController.getAsignaturasAsignadas);
 
 // Mover asignatura entre aulas

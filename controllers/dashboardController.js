@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../config/Db');
 
 exports.getEstadisticas = async (req, res) => {
   try {
