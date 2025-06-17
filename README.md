@@ -1,6 +1,6 @@
 # 🏫 Sistema de Ubicación de Aulas – Universidad de Caldas
 
-Este proyecto es un sistema inteligente que permite a estudiantes y administrativos ubicar aulas y gestionar asignaciones académicas mediante un panel de administración y un chatbot asistido con IA.
+Este proyecto es un sistema inteligente que permite a estudiantes y administrativos ubicar aulas y gestionar asignaciones académicas mediante un panel de administración **y un chatbot asistido con IA (DeepSeek)**.
 
 ---
 
@@ -14,6 +14,37 @@ Este proyecto es un sistema inteligente que permite a estudiantes y administrati
 - Chatbot de ayuda integrado con acceso restringido por autenticación.
 - Estadísticas del sistema al inicio del dashboard.
 - Arquitectura en capas con principios SOLID.
+
+---
+
+## 🤖 Chatbot inteligente Aulín
+
+El asistente virtual **Aulín** está integrado en el sistema y es capaz de responder preguntas como:
+
+| Intención | Ejemplos de preguntas |
+|-----------|-----------------------|
+| 📍 **Buscar aula** | *Dónde queda el aula U203*, *Dónde está la sala J* |
+| 📚 **Buscar asignatura** | *Dónde se dicta Arquitectura de Software*, *Dónde es la clase de Bases de Datos* |
+| 🏫 **Buscar asignaturas por aula** | *Qué asignaturas se dictan en la sala J*, *Qué materias hay en el aula U203* |
+| 👨‍🏫 **Buscar materias por profesor** | *Qué materias dicta Willington Londoño* |
+| 👨‍🏫 **Buscar profesor por asignatura** | *Quién enseña Arquitectura de Software*, *Qué profesor dicta Matemáticas Fundamentales* |
+
+**Funcionamiento:**  
+- Aulín analiza la pregunta con DeepSeek.
+- Clasifica la intención.
+- Extrae el aula, asignatura o profesor solicitado.
+- Consulta la base de datos en tiempo real.
+- Devuelve una respuesta detallada y coordenadas para ubicarla en el mapa.
+
+**Intenciones soportadas por la IA:**
+- `buscar_aula`
+- `buscar_asignatura`
+- `buscar_asignaturas_por_aula`
+- `buscar_materias_por_profesor`
+- `buscar_profesor_por_asignatura`
+- `desconocida` (para preguntas fuera de contexto)
+
+**Nota:** El backend aplica un filtro robusto para limpiar respuestas incorrectas de la IA, garantizando resultados coherentes.
 
 ---
 
@@ -132,6 +163,44 @@ REACT_APP_API_URL=http://localhost:3001
 Iniciar el servidor de desarrollo:
 
 ```bash
+npm start
+```
+
+### 5. Instalar y ejecutar Ollama con DeepSeek
+
+Este proyecto usa **DeepSeek-R1** corriendo localmente mediante **Ollama** para alimentar el chatbot **Aulín**.
+
+**Instalar Ollama (una vez):**  
+Descargar e instalar desde [https://ollama.com/](https://ollama.com/)
+
+**Descargar mediante la terminal PowerShell el modelo DeepSeek-R1:**
+
+```bash
+ollama pull deepseek-r1:7b
+```
+
+**Ejecutar el modelo:**
+
+```bash
+ollama run deepseek-r1:7b
+```
+
+Esto deja corriendo DeepSeek localmente en `http://localhost:11434`.
+
+**Detener manualmente:**  
+- Si lo ejecutaste con `ollama run`, presiona `Ctrl + C` en la terminal para detenerlo.
+- También puedes gestionar modelos desde el dashboard de Ollama.
+
+**Nota:** El backend del chatbot necesita que DeepSeek esté encendido para responder preguntas.
+
+
+### 6. Verificar que el backend y frontend estén en servicio
+
+```bash
+# Backend
+node server.js
+
+# Frontend
 npm start
 ```
 

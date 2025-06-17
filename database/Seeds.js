@@ -1,4 +1,4 @@
-const pool = require('../config/Db');
+const pool = require('../config/db');
 
 const insertarUsuarioAdmin = async () => {
   try {

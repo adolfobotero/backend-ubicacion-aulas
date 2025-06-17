@@ -1,4 +1,4 @@
-const pool = require('../config/Db');
+const pool = require('../config/db');
 
 // Habilitar extensión UUID si no existe
 const crearExtensionUUID = async () => {
